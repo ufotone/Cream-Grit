@@ -1,0 +1,5 @@
+src/**/build/
+src/**/.dep/
+src/**/*.drmlgunit
+*.obj
+*.exe
