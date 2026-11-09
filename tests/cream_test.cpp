@@ -96,7 +96,7 @@ void tests() {
  }
  check(maxStep<.02f,"tempo and note changes crossfade without a large sample discontinuity");
 #ifdef CREAM_GRIT_MASTER
- check(sizeof(cream::DSP)<262144,"extended MASTER DSP stays below 256KiB");
+ check(sizeof(cream::DSP)<163840,"mono-echo MASTER DSP stays below 160KiB");
 #else
  check(cream::SyncEcho::kBytes==96004 && cream::PitchShift::kBytes==32768 && sizeof(cream::DSP)<131072,"delay+pitch rings consume 128772 bytes; total DSP below 128KiB");
 #endif

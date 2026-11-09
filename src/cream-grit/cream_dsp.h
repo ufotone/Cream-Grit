@@ -8,37 +8,39 @@
 #include "pitch_shift.h"
 #ifdef CREAM_GRIT_MASTER
 #include "../cream-grit-master/master_space.h"
+#include "../cream-grit-master/random_pan.h"
 #endif
 namespace cream {
 constexpr float kFs = 48000.f;
 #ifdef CREAM_GRIT_MASTER
-constexpr int kCount = 22;
+constexpr int kCount = 24;
 #else
 constexpr int kCount = 15;
 #endif
 
 static const int kMin[kCount] = {0,-24,0,0,150,6,0,-24,0,0,0,0,-36,0,0
 #ifdef CREAM_GRIT_MASTER
-,0,0,1,0,0,3,0
+,0,0,1,0,0,3,0,1,0
 #endif
 };
 static const int kMax[kCount] = {100,0,100,100,1200,16,100,6,100,100,8,85,24,100,1
 #ifdef CREAM_GRIT_MASTER
-,1,100,30,100,100,80,100
+,100,100,30,100,100,80,100,80,1
 #endif
 };
 static const int kDefault[kCount] = {65,0,40,55,350,12,30,0,10,0,5,25,0,100,1
 #ifdef CREAM_GRIT_MASTER
-,0,0,8,40,0,18,60
+,0,0,8,40,0,18,60,10,0
 #endif
 };
 static const int kDown[kCount] = {80,-13,40,50,350,12,35,0,10,0,5,25,0,100,1
 #ifdef CREAM_GRIT_MASTER
-,0,0,8,40,0,18,60
+,0,0,8,40,0,18,60,10,0
 #endif
 };
 #ifdef CREAM_GRIT_MASTER
-static const int kWide[kCount]={45,-7,30,65,350,12,30,0,10,25,5,30,0,100,1,1,20,8,35,18,18,60};
+static const int kWide[kCount]={45,-7,30,65,350,12,30,0,10,25,5,30,0,100,1,0,20,8,35,18,18,60,10,0};
+static const int kDrift[kCount]={45,-7,30,65,350,12,30,0,10,25,5,30,0,100,1,60,20,8,35,18,18,60,10,0};
 #endif
 inline float pole(float hz) { return 1.f - std::exp(-6.28318530718f * hz / kFs); }
 inline float saturate(float x) {
@@ -83,10 +85,11 @@ class DSP {
     target_[14]=static_cast<float>(v[14]);
     pitch_.setRatio(target_[12]);
 #ifdef CREAM_GRIT_MASTER
-    target_[15]=static_cast<float>(v[15]);echo_.setStereo(v[15]!=0);
+    target_[15]=v[15]*.01f;
     target_[16]=v[16]*.01f;target_[17]=v[17]*.1f;target_[18]=v[18]*.01f;
     target_[19]=v[19]*.01f;target_[20]=v[20]*.1f;target_[21]=v[21]*.01f;
     reverb_.configure(target_[20],target_[21]);
+    target_[22]=v[22]*.1f;target_[23]=static_cast<float>(v[23]);
 #endif
   }
   void setTempo(float bpm) {if(bpm>0.f)bpm_=std::max(30.f,std::min(300.f,bpm));}
@@ -99,7 +102,7 @@ class DSP {
     echo_.setTiming(bpm_,target_[10]);echo_.reset();
     pitch_.reset();pitchActive_=target_[12]!=1.f&&target_[13]>0.f?1.f:0.f;
 #ifdef CREAM_GRIT_MASTER
-    chorus_.reset();reverb_.reset();
+    chorus_.reset();reverb_.reset();pan_.reset();
 #endif
   }
   void process(const float* in, float* out, std::size_t frames, std::size_t inputStride=2) {
@@ -173,13 +176,14 @@ class DSP {
       }
       const bool enabled=target_[9]>0.f || smooth_[9]>1.e-6f;
 #ifdef CREAM_GRIT_MASTER
-      float mod[2],repeats[2],space[2];
+      float mod[2],space[2],panned[2];
       const bool chorusOn=target_[16]>0.f||smooth_[16]>1.e-6f;
       chorus_.tick(wet,mod,smooth_[17],smooth_[18],chorusOn);
       for(int c=0;c<2;++c)wet[c]+=.35f*smooth_[16]*chorus_.readiness()*mod[c];
-      echo_.tick(wet,repeats,smooth_[11],enabled);
+      const float repeats=echo_.tick((wet[0]+wet[1])*.5f,smooth_[11],enabled);
       reverb_.tick(wet,space,target_[19]>0.f||smooth_[19]>1.e-6f);
-      for(int c=0;c<2;++c)out[2*n+c]=ceiling(gain*(wet[c]+smooth_[9]*repeats[c]+smooth_[19]*space[c]));
+      pan_.tick(wet,panned,smooth_[15],smooth_[22],target_[23]>.5f,target_[15]>0.f||smooth_[15]>1.e-6f);
+      for(int c=0;c<2;++c)out[2*n+c]=ceiling(gain*(panned[c]+smooth_[9]*repeats+smooth_[19]*space[c]));
 #else
       const float repeats=echo_.tick((wet[0]+wet[1])*.5f,smooth_[11],enabled);
       for(int c=0;c<2;++c)out[2*n+c]=ceiling(gain*(wet[c]+smooth_[9]*repeats));
@@ -198,12 +202,11 @@ class DSP {
   uint32_t random_=0x2241200u;
   float noiseFilter_[2]={};
   float bpm_=120.f;
+  SyncEcho echo_;
 #ifdef CREAM_GRIT_MASTER
-  MasterEcho echo_;
   SimpleChorus chorus_;
   SimpleReverb reverb_;
-#else
-  SyncEcho echo_;
+  RandomPan pan_;
 #endif
   PitchShift pitch_;
   float pitchActive_=0.f;

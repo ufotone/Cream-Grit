@@ -10,7 +10,7 @@ KORG drumlogue用のローファイ、ピッチシフト、テンポ同期ディ
 |---|---|---|---|
 | DELAY | [cream_grit.drmlgunit](https://github.com/ufotone/Cream-Grit/releases/latest/download/cream_grit.drmlgunit) | `Units/DelayFXs/` | Cream Grit |
 | MASTER | [cream_grit_master.drmlgunit](https://github.com/ufotone/Cream-Grit/releases/latest/download/cream_grit_master.drmlgunit) | `Units/MasterFXs/` | Cream Grit M |
-| MASTER試作版 | [v0.5.0-beta.1](https://github.com/ufotone/Cream-Grit/releases/download/v0.5.0-beta.1/cream_grit_master.drmlgunit) | `Units/MasterFXs/` | Cream Grit M |
+| MASTER試作版 | [v0.6.0-beta.1](https://github.com/ufotone/Cream-Grit/releases/download/v0.6.0-beta.1/cream_grit_master.drmlgunit) | `Units/MasterFXs/` | Cream Grit M |
 
 1. 使用する版をダウンロードします。DELAY版とMASTER版は同時に導入できます。MASTERの安定版と試作版は入れ替えて使います。
 2. drumlogueのUSB DEVICE端子をPCに接続し、RECボタンを押しながら電源を入れます。
@@ -50,21 +50,27 @@ NOTE：1/32、1/16T、1/16、1/8T、1/16D、1/8、1/4T、1/8D、1/4。T＝三連
 
 ### MASTER試作版の追加パラメーター
 
-v0.5.0-beta.1では、コーラスの後にディレイとリバーブを並列で加えます。最初の2プリセットは追加機能をオフ、ディレイをMONOにしています。**Wide Space**プリセットではコーラス・リバーブ・ステレオディレイをまとめて使えます。
+v0.6.0-beta.1では、コーラスの後にディレイとリバーブを並列で加えます。最初の2プリセットは追加機能をオフ、ディレイをMONOにしています。**Wide Space**プリセットではコーラス・リバーブ・モノラルディレイをまとめて使えます。**Random Drift**はメイン音のランダムパンも加えます。
 
 | 名前 | 範囲（初期値） | 説明 |
 |---|---|---|
-| E-MODE | MONO / STEREO（MONO） | ディレイ反復音の形式。STEREOは左右独立。切り替え時は反復音を短くフェードしてリセット。 |
+| PAN | 0〜100%（0） | メイン音を左右に移動させる幅。0でオフ。 |
 | CHORUS | 0〜100%（0） | 原音に加えるステレオ変調音の量。0で休止。 |
 | C-RATE | 0.1〜3.0 Hz（0.8） | コーラスの揺れる速さ。 |
 | C-DEPTH | 0〜100%（40） | コーラスの揺れる深さ。 |
 | REVERB | 0〜100%（0） | ステレオ残響の量。0で休止。 |
 | R-DECAY | 0.3〜8.0秒（1.8） | 残響の減衰時間の目安。 |
 | R-DAMP | 0〜100%（60） | 残響の高域減衰。上げると暗くなります。 |
+| P-RATE | 0.1〜8.0 Hz（1.0） | パンの目的位置を新しく選ぶ周期。1Hzで1秒ごと。 |
+| P-WAVE | SINE / SQUARE（SINE） | SINEは滑らかに移動、SQUAREは位置を切り替え。 |
 
-比較用にステレオディレイのバッファも固定確保するため、MONOでもメモリ容量は変わりません。MONOでは右側のディレイ処理を休止します。
+周期ごとにランダムな左右位置を選び、波形に応じてその位置へ移動します。パンはメイン音だけに掛け、ディレイとリバーブの残響は動かしません。パン専用の音声バッファはありません。
 
-[比較WAV](https://github.com/ufotone/Cream-Grit/releases/download/v0.5.0-beta.1/preview-space.wav)：基本音 → コーラス → リバーブ → MONOディレイ → STEREOディレイ → 全部＋MONO → 全部＋STEREO。各区間約8.2秒、間隔0.35秒。
+ディレイはMONO固定です。STEREOディレイと専用バッファを削除し、音声バッファの合計は150,084 bytes（約146.6KiB）です。コーラスとリバーブの出力はステレオです。
+
+[比較WAV](https://github.com/ufotone/Cream-Grit/releases/download/v0.6.0-beta.1/preview-space.wav)：基本音 → コーラス → リバーブ → MONOディレイ → 全部。各区間約8.2秒、間隔0.35秒。
+
+[パン比較WAV](https://github.com/ufotone/Cream-Grit/releases/download/v0.6.0-beta.1/preview-pan.wav)：パンなし → SINE → SQUARE → Random Drift。
 
 PITCHが0、またはP-MIXが0ならピッチ処理を休止します。FULL・P-MIX 100%では処理対象の音全体をピッチ音に置き換えます。DELAY版では本体側の原音が並列に鳴り、MASTER版ではMASTERに送った音を直接処理します。ピッチダウンでは前段LPFを弱め、ピッチアップでは折り返し対策。
 
@@ -78,7 +84,7 @@ A lo-fi, pitch-shift and tempo-sync delay effect for KORG drumlogue, available f
 |---|---|---|---|
 | DELAY | [cream_grit.drmlgunit](https://github.com/ufotone/Cream-Grit/releases/latest/download/cream_grit.drmlgunit) | `Units/DelayFXs/` | Cream Grit |
 | MASTER | [cream_grit_master.drmlgunit](https://github.com/ufotone/Cream-Grit/releases/latest/download/cream_grit_master.drmlgunit) | `Units/MasterFXs/` | Cream Grit M |
-| MASTER preview | [v0.5.0-beta.1](https://github.com/ufotone/Cream-Grit/releases/download/v0.5.0-beta.1/cream_grit_master.drmlgunit) | `Units/MasterFXs/` | Cream Grit M |
+| MASTER preview | [v0.6.0-beta.1](https://github.com/ufotone/Cream-Grit/releases/download/v0.6.0-beta.1/cream_grit_master.drmlgunit) | `Units/MasterFXs/` | Cream Grit M |
 
 1. Download the desired edition. DELAY and MASTER can be installed together; choose either the stable or preview MASTER build.
 2. Connect the drumlogue USB DEVICE port to your computer. Hold REC while powering on.
@@ -118,21 +124,27 @@ NOTE divisions: 1/32, 1/16T, 1/16, 1/8T, 1/16D, 1/8, 1/4T, 1/8D, 1/4. T = triple
 
 ### Additional MASTER preview parameters
 
-In v0.5.0-beta.1, chorus feeds the parallel echo and reverb paths. The first two presets keep the new effects off and echo in MONO. **Wide Space** enables chorus, reverb and stereo echo together.
+In v0.6.0-beta.1, chorus feeds the parallel echo and reverb paths. The first two presets keep the new effects off and echo in MONO. **Wide Space** enables chorus, reverb and mono echo together. **Random Drift** also adds random main-signal panning.
 
 | Name | Range (default) | Description |
 |---|---|---|
-| E-MODE | MONO / STEREO (MONO) | Echo return format. STEREO uses independent channels. Changing modes briefly fades and resets the echo tail. |
+| PAN | 0–100% (0) | Width of the main-signal pan movement. Zero turns it off. |
 | CHORUS | 0–100% (0) | Added stereo modulation level. Zero suspends it. |
 | C-RATE | 0.1–3.0 Hz (0.8) | Chorus modulation rate. |
 | C-DEPTH | 0–100% (40) | Chorus modulation depth. |
 | REVERB | 0–100% (0) | Stereo reverb return level. Zero suspends it. |
 | R-DECAY | 0.3–8.0 seconds (1.8) | Nominal tail decay time. |
 | R-DAMP | 0–100% (60) | High-frequency damping. Higher values darken the tail. |
+| P-RATE | 0.1–8.0 Hz (1.0) | New random pan target frequency. 1Hz selects a target every second. |
+| P-WAVE | SINE / SQUARE (SINE) | SINE moves smoothly; SQUARE switches positions. |
 
-The preview reserves both echo buffers even in MONO mode for comparison. MONO suspends the right echo processor but does not reduce the fixed memory allocation.
+A new random left/right target is selected each cycle. The waveform controls the transition to that target. Panning affects the main signal, leaving echo and reverb tails in place. It requires no audio delay buffer.
 
-[Preview WAV](https://github.com/ufotone/Cream-Grit/releases/download/v0.5.0-beta.1/preview-space.wav): base → chorus → reverb → mono echo → stereo echo → all with mono echo → all with stereo echo. Each section is approximately 8.2 seconds, separated by 0.35 seconds.
+Echo is fixed to MONO. The stereo echo path and its dedicated buffer have been removed; audio buffers now total 150,084 bytes (approximately 146.6KiB). Chorus and reverb remain stereo.
+
+[Preview WAV](https://github.com/ufotone/Cream-Grit/releases/download/v0.6.0-beta.1/preview-space.wav): base → chorus → reverb → mono echo → all effects. Each section is approximately 8.2 seconds, separated by 0.35 seconds.
+
+[Pan preview WAV](https://github.com/ufotone/Cream-Grit/releases/download/v0.6.0-beta.1/preview-pan.wav): pan off → SINE → SQUARE → Random Drift.
 
 PITCH 0 or P-MIX 0 suspends pitch processing. FULL with P-MIX 100% replaces the entire processed signal with the shifted sound. The DELAY edition retains the drumlogue's parallel dry signal; the MASTER edition directly processes signals routed to MASTER. Pitch-down uses a lighter input low-pass filter, while pitch-up retains anti-alias filtering.
 

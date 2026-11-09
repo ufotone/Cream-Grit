@@ -14,7 +14,7 @@ int main() {
  bad=d;bad.input_channels=1;check(unit_init(&bad)==k_unit_err_geometry,"wrong channel geometry rejected");
  check(unit_init(&d)==k_unit_err_none,"48k stereo unit initializes");
 #ifdef CREAM_GRIT_MASTER
- const int count=22;const int presets=3;
+ const int count=24;const int presets=4;
 #else
  const int count=15;const int presets=2;
 #endif
@@ -30,9 +30,12 @@ int main() {
  unit_load_preset(1);check(unit_get_param_value(1)==-13 && unit_get_param_value(5)==12 && unit_get_preset_index()==1,"Down Dirt loads virtual clock -13 and 12bit");
  check(std::strcmp(unit_get_preset_name(0),"12bit")==0 && std::strcmp(unit_get_preset_name(1),"Down Dirt")==0,"preset names valid");
 #ifdef CREAM_GRIT_MASTER
- check(std::strcmp(unit_get_param_str_value(15,0),"MONO")==0&&std::strcmp(unit_get_param_str_value(15,1),"STEREO")==0,"echo mode labels valid");
+ check(unit_get_param_value(15)==0&&unit_get_param_str_value(15,1)==nullptr,"main pan defaults to off; stereo echo selector is absent");
+ check(std::strcmp(unit_get_param_str_value(23,0),"SINE")==0&&std::strcmp(unit_get_param_str_value(23,1),"SQUARE")==0,"pan waveform labels valid");
  unit_load_preset(2);
  check(unit_get_preset_index()==2&&unit_get_param_value(16)>0&&unit_get_param_value(19)>0,"Wide Space enables chorus and reverb");
+ unit_load_preset(3);
+ check(unit_get_preset_index()==3&&unit_get_param_value(15)==60&&unit_get_param_value(22)==10,"Random Drift enables main pan");
  unit_load_preset(1);
 #endif
  unit_load_preset(99);check(unit_get_preset_index()==1,"invalid preset ignored");

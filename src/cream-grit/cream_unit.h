@@ -34,15 +34,15 @@ class Delay {
   const char* getParameterStrValue(uint8_t i,int32_t v) const {
     if(i==10)return cream::SyncEcho::noteName(v);
 #ifdef CREAM_GRIT_MASTER
-    if(i==15)return v==0?"MONO":v==1?"STEREO":nullptr;
+    if(i==23)return v==0?"SINE":v==1?"SQUARE":nullptr;
 #endif
     return i==14?(v==0?"HIGH":v==1?"FULL":nullptr):nullptr;
   }
   const uint8_t* getParameterBmpValue(uint8_t,int32_t) const { return nullptr; }
   void LoadPreset(uint8_t i) {
 #ifdef CREAM_GRIT_MASTER
-    if(i>2)return;
-    const int* p=i==2?cream::kWide:i==1?cream::kDown:cream::kDefault;
+    if(i>3)return;
+    const int* p=i==3?cream::kDrift:i==2?cream::kWide:i==1?cream::kDown:cream::kDefault;
 #else
     if(i>1) return;
     const int* p=i?cream::kDown:cream::kDefault;
@@ -54,6 +54,7 @@ class Delay {
   static const char* getPresetName(uint8_t i) {
 #ifdef CREAM_GRIT_MASTER
     if(i==2)return "Wide Space";
+    if(i==3)return "Random Drift";
 #endif
     return i==0?"12bit":i==1?"Down Dirt":nullptr;
   }

@@ -1,32 +1,9 @@
 #pragma once
-#include "../cream-grit/sync_echo.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 
 namespace cream {
-class MasterEcho {
- public:
-  static constexpr uint32_t kBytes=2*SyncEcho::kBytes;
-  void setTiming(float bpm,float beats){left_.setTiming(bpm,beats);right_.setTiming(bpm,beats);}
-  void setStereo(bool stereo){requested_=stereo;}
-  void reset(){left_.reset();right_.reset();stereo_=requested_;fade_=1.f;}
-  void tick(const float* in,float* out,float feedback,bool enabled){
-    if(!enabled){left_.tick(0,0,false);right_.tick(0,0,false);stereo_=requested_;fade_=1.f;out[0]=out[1]=0;return;}
-    if(stereo_!=requested_){
-      fade_=std::max(0.f,fade_-1.f/480.f);
-      if(fade_==0.f){left_.reset();right_.reset();stereo_=requested_;}
-    }else fade_=std::min(1.f,fade_+1.f/480.f);
-    if(stereo_){out[0]=left_.tick(in[0],feedback,true);out[1]=right_.tick(in[1],feedback,true);}
-    else{out[0]=out[1]=left_.tick((in[0]+in[1])*.5f,feedback,true);right_.tick(0,0,false);}
-    out[0]*=fade_;out[1]*=fade_;
-  }
- private:
-  SyncEcho left_,right_;
-  bool requested_=false,stereo_=false;
-  float fade_=1.f;
-};
-
 class SimpleChorus {
  public:
   static constexpr uint32_t kFrames=1024,kMask=kFrames-1,kBytes=kFrames*2*sizeof(int16_t);

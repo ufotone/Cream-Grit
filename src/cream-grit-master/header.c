@@ -5,10 +5,10 @@ const __unit_header unit_header_t unit_header = {
     .api = UNIT_API_VERSION,
     .dev_id = 0x55344752U,
     .unit_id = 0x43524732U,
-    .version = 0x00000500U,
+    .version = 0x00000600U,
     .name = "Cream Grit M",
-    .num_presets = 3,
-    .num_params = 22,
+    .num_presets = 4,
+    .num_params = 24,
     .params = {
         {0, 100, 0, 65, k_unit_param_type_percent, 0, 0, 0, {"GRIT"}},
         {-24, 0, 0, 0, k_unit_param_type_semi, 0, 0, 0, {"CLOCK"}},
@@ -25,14 +25,14 @@ const __unit_header unit_header_t unit_header = {
         {-36, 24, 0, 0, k_unit_param_type_semi, 0, 0, 0, {"PITCH"}},
         {0, 100, 0, 100, k_unit_param_type_percent, 0, 0, 0, {"P-MIX"}},
         {0, 1, 0, 1, k_unit_param_type_strings, 0, 0, 0, {"P-SCOPE"}},
-        {0,1,0,0,k_unit_param_type_strings,0,0,0,{"E-MODE"}},
+        {0,100,0,0,k_unit_param_type_percent,0,0,0,{"PAN"}},
         {0,100,0,0,k_unit_param_type_percent,0,0,0,{"CHORUS"}},
         {1,30,1,8,k_unit_param_type_hertz,1,1,0,{"C-RATE"}},
         {0,100,0,40,k_unit_param_type_percent,0,0,0,{"C-DEPTH"}},
         {0,100,0,0,k_unit_param_type_percent,0,0,0,{"REVERB"}},
         {3,80,3,18,k_unit_param_type_sec,1,1,0,{"R-DECAY"}},
         {0,100,0,60,k_unit_param_type_percent,0,0,0,{"R-DAMP"}},
-        {0,0,0,0,k_unit_param_type_none,0,0,0,{""}},
-        {0,0,0,0,k_unit_param_type_none,0,0,0,{""}}
+        {1,80,1,10,k_unit_param_type_hertz,1,1,0,{"P-RATE"}},
+        {0,1,0,0,k_unit_param_type_strings,0,0,0,{"P-WAVE"}}
     }
 };
