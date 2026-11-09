@@ -95,7 +95,11 @@ void tests() {
    if(n>60000&&n<62000)maxStep=std::max(maxStep,std::fabs(v-previous));previous=v;
  }
  check(maxStep<.02f,"tempo and note changes crossfade without a large sample discontinuity");
+#ifdef CREAM_GRIT_MASTER
+ check(sizeof(cream::DSP)<262144,"extended MASTER DSP stays below 256KiB");
+#else
  check(cream::SyncEcho::kBytes==96004 && cream::PitchShift::kBytes==32768 && sizeof(cream::DSP)<131072,"delay+pitch rings consume 128772 bytes; total DSP below 128KiB");
+#endif
  p={65,-13,40,55,350,12,30,0,10,35,5,40};x=sine(5678);
  check(difference(render(x,p,1),render(x,p,257))<1.e-7,"tempo delay is independent of callback block size");
  bool pitchFreq=true;
@@ -129,7 +133,7 @@ void tests() {
  V noise(1024*2),result(noise.size());uint32_t state=42;
  for(auto& v:noise){state=1664525*state+1013904223;v=(int32_t(state)/2147483648.f)*4.f;}
  bool finite=true,bounded=true;
- for(int mask=0;mask<(1<<cream::kCount);++mask) {
+ for(int mask=0;mask<(1<<12);++mask) {
    for(int k=0;k<cream::kCount;++k)p[k]=(mask&(1<<(k%12)))?cream::kMin[k]:cream::kMax[k];
    d.set(p.data()); d.process(noise.data(),result.data(),noise.size()/2);
    for(float v:result){finite &= std::isfinite(v);bounded &= std::fabs(v)<=1.f;}
@@ -148,12 +152,12 @@ void tests() {
 }
 int main(int argc,char**argv) {
  if(argc==1) {tests();return failures?1:0;}
- if(argc!=19 && argc!=20) {std::fprintf(stderr,"input.f32 output.f32 GRIT CLOCK BODY TONE SPLIT BITS DRIVE LEVEL RADIO ECHO NOTE FEEDBACK PITCH P-MIX P-SCOPE block [BPM]\n");return 2;}
+ if(argc!=cream::kCount+4 && argc!=cream::kCount+5) {std::fprintf(stderr,"input.f32 output.f32 parameters... block [BPM]\n");return 2;}
  std::ifstream f(argv[1],std::ios::binary|std::ios::ate);if(!f)return 3;
  const size_t bytes=size_t(f.tellg());if(bytes%8)return 4;f.seekg(0);
  V x(bytes/sizeof(float));f.read(reinterpret_cast<char*>(x.data()),bytes);P p;
  for(int i=0;i<cream::kCount;++i)p[i]=std::atoi(argv[3+i]);
- V y=render(x,p,std::max(1,std::atoi(argv[18])),argc==20?std::strtof(argv[19],nullptr):120.f);
+ V y=render(x,p,std::max(1,std::atoi(argv[cream::kCount+3])),argc==cream::kCount+5?std::strtof(argv[cream::kCount+4],nullptr):120.f);
  std::ofstream o(argv[2],std::ios::binary);o.write(reinterpret_cast<const char*>(y.data()),y.size()*sizeof(float));
  return o?0:5;
 }

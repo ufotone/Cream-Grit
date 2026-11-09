@@ -13,8 +13,13 @@ int main() {
  bad=d;bad.samplerate=44100;check(unit_init(&bad)==k_unit_err_samplerate,"wrong sample rate rejected");
  bad=d;bad.input_channels=1;check(unit_init(&bad)==k_unit_err_geometry,"wrong channel geometry rejected");
  check(unit_init(&d)==k_unit_err_none,"48k stereo unit initializes");
- check(unit_header.num_params==15 && unit_header.num_presets==2,"metadata exposes 15 parameters and 2 presets");
- bool defaults=true;for(int i=0;i<15;++i) defaults &= unit_get_param_value(i)==unit_header.params[i].init;
+#ifdef CREAM_GRIT_MASTER
+ const int count=22;const int presets=3;
+#else
+ const int count=15;const int presets=2;
+#endif
+ check(unit_header.num_params==count && unit_header.num_presets==presets,"metadata matches parameter and preset counts");
+ bool defaults=true;for(int i=0;i<count;++i) defaults &= unit_get_param_value(i)==unit_header.params[i].init;
  check(defaults,"parameter defaults match header");
  check(unit_get_param_value(14)==1 && unit_get_param_value(13)==100,"FULL replacement scope and 100% pitch mix are defaults");
  check(unit_get_param_value(8)==10 && unit_get_param_str_value(9,0)==nullptr,"FM radio default is 10; BAND selector removed");
@@ -24,6 +29,12 @@ int main() {
  check(unit_get_param_value(12)==-36&&unit_get_param_value(13)==100,"pitch range and mix clamp to their limits");
  unit_load_preset(1);check(unit_get_param_value(1)==-13 && unit_get_param_value(5)==12 && unit_get_preset_index()==1,"Down Dirt loads virtual clock -13 and 12bit");
  check(std::strcmp(unit_get_preset_name(0),"12bit")==0 && std::strcmp(unit_get_preset_name(1),"Down Dirt")==0,"preset names valid");
+#ifdef CREAM_GRIT_MASTER
+ check(std::strcmp(unit_get_param_str_value(15,0),"MONO")==0&&std::strcmp(unit_get_param_str_value(15,1),"STEREO")==0,"echo mode labels valid");
+ unit_load_preset(2);
+ check(unit_get_preset_index()==2&&unit_get_param_value(16)>0&&unit_get_param_value(19)>0,"Wide Space enables chorus and reverb");
+ unit_load_preset(1);
+#endif
  unit_load_preset(99);check(unit_get_preset_index()==1,"invalid preset ignored");
  unit_set_param_value(0,10000);unit_set_param_value(5,-100);
  check(unit_get_param_value(0)==100 && unit_get_param_value(5)==6,"parameter writes clamped");

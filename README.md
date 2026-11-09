@@ -10,8 +10,9 @@ KORG drumlogue用のローファイ、ピッチシフト、テンポ同期ディ
 |---|---|---|---|
 | DELAY | [cream_grit.drmlgunit](https://github.com/ufotone/Cream-Grit/releases/latest/download/cream_grit.drmlgunit) | `Units/DelayFXs/` | Cream Grit |
 | MASTER | [cream_grit_master.drmlgunit](https://github.com/ufotone/Cream-Grit/releases/latest/download/cream_grit_master.drmlgunit) | `Units/MasterFXs/` | Cream Grit M |
+| MASTER試作版 | [v0.5.0-beta.1](https://github.com/ufotone/Cream-Grit/releases/download/v0.5.0-beta.1/cream_grit_master.drmlgunit) | `Units/MasterFXs/` | Cream Grit M |
 
-1. 使用する版をダウンロードします。両方を入れることもできます。
+1. 使用する版をダウンロードします。DELAY版とMASTER版は同時に導入できます。MASTERの安定版と試作版は入れ替えて使います。
 2. drumlogueのUSB DEVICE端子をPCに接続し、RECボタンを押しながら電源を入れます。
 3. 表示されたUSBドライブの、上記のコピー先にファイルを入れます。
 4. PC側で安全に取り外し、本体のYESを押して起動します。
@@ -45,7 +46,25 @@ MASTER版はインサート処理なので、Audio Inの音がそのまま処理
 | P-MIX | 0〜100%（100） | ピッチ前の音をピッチ後の音に置き換える割合。 |
 | P-SCOPE | HIGH / FULL（FULL） | HIGHはSPLITで低域を保護。FULLはFXリターン全体をピッチ処理。 |
 
-NOTE：1/32、1/16T、1/16、1/8T、1/16D、1/8、1/4T、1/8D、1/4。T＝三連、D＝付点。本体テンポの30〜300 BPMに同期し、最大2秒のモノラル反復音を返します。
+NOTE：1/32、1/16T、1/16、1/8T、1/16D、1/8、1/4T、1/8D、1/4。T＝三連、D＝付点。本体テンポの30〜300 BPMに同期し、最大2秒の反復音を返します。DELAY版のディレイはモノラルです。
+
+### MASTER試作版の追加パラメーター
+
+v0.5.0-beta.1では、コーラスの後にディレイとリバーブを並列で加えます。最初の2プリセットは追加機能をオフ、ディレイをMONOにしています。**Wide Space**プリセットではコーラス・リバーブ・ステレオディレイをまとめて使えます。
+
+| 名前 | 範囲（初期値） | 説明 |
+|---|---|---|
+| E-MODE | MONO / STEREO（MONO） | ディレイ反復音の形式。STEREOは左右独立。切り替え時は反復音を短くフェードしてリセット。 |
+| CHORUS | 0〜100%（0） | 原音に加えるステレオ変調音の量。0で休止。 |
+| C-RATE | 0.1〜3.0 Hz（0.8） | コーラスの揺れる速さ。 |
+| C-DEPTH | 0〜100%（40） | コーラスの揺れる深さ。 |
+| REVERB | 0〜100%（0） | ステレオ残響の量。0で休止。 |
+| R-DECAY | 0.3〜8.0秒（1.8） | 残響の減衰時間の目安。 |
+| R-DAMP | 0〜100%（60） | 残響の高域減衰。上げると暗くなります。 |
+
+比較用にステレオディレイのバッファも固定確保するため、MONOでもメモリ容量は変わりません。MONOでは右側のディレイ処理を休止します。
+
+[比較WAV](https://github.com/ufotone/Cream-Grit/releases/download/v0.5.0-beta.1/preview-space.wav)：基本音 → コーラス → リバーブ → MONOディレイ → STEREOディレイ → 全部＋MONO → 全部＋STEREO。各区間約8.2秒、間隔0.35秒。
 
 PITCHが0、またはP-MIXが0ならピッチ処理を休止します。FULL・P-MIX 100%では処理対象の音全体をピッチ音に置き換えます。DELAY版では本体側の原音が並列に鳴り、MASTER版ではMASTERに送った音を直接処理します。ピッチダウンでは前段LPFを弱め、ピッチアップでは折り返し対策。
 
@@ -59,8 +78,9 @@ A lo-fi, pitch-shift and tempo-sync delay effect for KORG drumlogue, available f
 |---|---|---|---|
 | DELAY | [cream_grit.drmlgunit](https://github.com/ufotone/Cream-Grit/releases/latest/download/cream_grit.drmlgunit) | `Units/DelayFXs/` | Cream Grit |
 | MASTER | [cream_grit_master.drmlgunit](https://github.com/ufotone/Cream-Grit/releases/latest/download/cream_grit_master.drmlgunit) | `Units/MasterFXs/` | Cream Grit M |
+| MASTER preview | [v0.5.0-beta.1](https://github.com/ufotone/Cream-Grit/releases/download/v0.5.0-beta.1/cream_grit_master.drmlgunit) | `Units/MasterFXs/` | Cream Grit M |
 
-1. Download the desired edition. Both can be installed together.
+1. Download the desired edition. DELAY and MASTER can be installed together; choose either the stable or preview MASTER build.
 2. Connect the drumlogue USB DEVICE port to your computer. Hold REC while powering on.
 3. Copy the file into the corresponding destination on the mounted USB drive.
 4. Safely eject the drive, then press YES on the drumlogue to start.
@@ -94,7 +114,25 @@ The MASTER edition processes Audio In as an insert, replacing its input with the
 | P-MIX | 0–100% (100) | Crossfade from the pre-pitch sound to the pitch-shifted sound. |
 | P-SCOPE | HIGH / FULL (FULL) | HIGH protects bass using SPLIT. FULL shifts the entire effect return. |
 
-NOTE divisions: 1/32, 1/16T, 1/16, 1/8T, 1/16D, 1/8, 1/4T, 1/8D, 1/4. T = triplet; D = dotted. The mono delay follows the host tempo from 30 to 300 BPM, with a maximum length of two seconds.
+NOTE divisions: 1/32, 1/16T, 1/16, 1/8T, 1/16D, 1/8, 1/4T, 1/8D, 1/4. T = triplet; D = dotted. The delay follows the host tempo from 30 to 300 BPM, with a maximum length of two seconds. The DELAY edition's echo remains mono.
+
+### Additional MASTER preview parameters
+
+In v0.5.0-beta.1, chorus feeds the parallel echo and reverb paths. The first two presets keep the new effects off and echo in MONO. **Wide Space** enables chorus, reverb and stereo echo together.
+
+| Name | Range (default) | Description |
+|---|---|---|
+| E-MODE | MONO / STEREO (MONO) | Echo return format. STEREO uses independent channels. Changing modes briefly fades and resets the echo tail. |
+| CHORUS | 0–100% (0) | Added stereo modulation level. Zero suspends it. |
+| C-RATE | 0.1–3.0 Hz (0.8) | Chorus modulation rate. |
+| C-DEPTH | 0–100% (40) | Chorus modulation depth. |
+| REVERB | 0–100% (0) | Stereo reverb return level. Zero suspends it. |
+| R-DECAY | 0.3–8.0 seconds (1.8) | Nominal tail decay time. |
+| R-DAMP | 0–100% (60) | High-frequency damping. Higher values darken the tail. |
+
+The preview reserves both echo buffers even in MONO mode for comparison. MONO suspends the right echo processor but does not reduce the fixed memory allocation.
+
+[Preview WAV](https://github.com/ufotone/Cream-Grit/releases/download/v0.5.0-beta.1/preview-space.wav): base → chorus → reverb → mono echo → stereo echo → all with mono echo → all with stereo echo. Each section is approximately 8.2 seconds, separated by 0.35 seconds.
 
 PITCH 0 or P-MIX 0 suspends pitch processing. FULL with P-MIX 100% replaces the entire processed signal with the shifted sound. The DELAY edition retains the drumlogue's parallel dry signal; the MASTER edition directly processes signals routed to MASTER. Pitch-down uses a lighter input low-pass filter, while pitch-up retains anti-alias filtering.
 

@@ -33,17 +33,30 @@ class Delay {
   void SetTempo(uint32_t t) {if(t)tempo_.store(t,std::memory_order_relaxed);}
   const char* getParameterStrValue(uint8_t i,int32_t v) const {
     if(i==10)return cream::SyncEcho::noteName(v);
+#ifdef CREAM_GRIT_MASTER
+    if(i==15)return v==0?"MONO":v==1?"STEREO":nullptr;
+#endif
     return i==14?(v==0?"HIGH":v==1?"FULL":nullptr):nullptr;
   }
   const uint8_t* getParameterBmpValue(uint8_t,int32_t) const { return nullptr; }
   void LoadPreset(uint8_t i) {
+#ifdef CREAM_GRIT_MASTER
+    if(i>2)return;
+    const int* p=i==2?cream::kWide:i==1?cream::kDown:cream::kDefault;
+#else
     if(i>1) return;
     const int* p=i?cream::kDown:cream::kDefault;
+#endif
     for(int k=0;k<cream::kCount;++k) params_[k].store(p[k],std::memory_order_relaxed);
     preset_.store(i,std::memory_order_relaxed);
   }
   uint8_t getPresetIndex() const { return preset_.load(std::memory_order_relaxed); }
-  static const char* getPresetName(uint8_t i) { return i==0?"12bit":i==1?"Down Dirt":nullptr; }
+  static const char* getPresetName(uint8_t i) {
+#ifdef CREAM_GRIT_MASTER
+    if(i==2)return "Wide Space";
+#endif
+    return i==0?"12bit":i==1?"Down Dirt":nullptr;
+  }
  private:
   void sync() {
     int p[cream::kCount];bool changed=!configured_;

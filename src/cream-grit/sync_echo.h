@@ -56,6 +56,9 @@ class SyncEcho {
   float read(float delay)const {
     float pos=static_cast<float>(write_)-delay-(odd_?.5f:0.f);
     if(pos<0.f)pos+=kSize;
+#ifdef CREAM_GRIT_MASTER
+    if(pos>=kSize)pos-=kSize;
+#endif
     const uint32_t i=static_cast<uint32_t>(pos);
     const uint32_t j=i+1==kSize?0:i+1;
     const float f=pos-i;

@@ -54,6 +54,9 @@ class PitchShift {
   float read(float delay,int c)const {
     float pos=static_cast<float>(write_)-delay;
     if(pos<0.f)pos+=kFrames;
+#ifdef CREAM_GRIT_MASTER
+    if(pos>=kFrames)pos-=kFrames;
+#endif
     const uint32_t i=static_cast<uint32_t>(pos);
     const float f=pos-i,a=sample(i,c);
     return a+f*(sample((i+1)&kMask,c)-a);

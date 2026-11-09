@@ -25,3 +25,10 @@ DSPの確認はVisual Studio開発者コマンドプロンプトから実行で�
 cl /nologo /std:c++14 /O2 /EHsc /W4 /I src\cream-grit tests\cream_test.cpp /Fe:cream_test.exe
 cream_test.exe
 ```
+
+MASTER spatial effects / MASTER空間系の確認：
+
+```bat
+cl /nologo /std:c++14 /O2 /EHsc /W4 /DCREAM_GRIT_MASTER=1 /I src\cream-grit tests\space_test.cpp /Fe:space_test.exe
+space_test.exe
+```

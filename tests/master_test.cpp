@@ -56,7 +56,7 @@ int main() {
     quad[4*n]=stereo[2*n];quad[4*n+1]=stereo[2*n+1];
     quad[4*n+2]=.9f;quad[4*n+3]=-.7f;
   }
-  int p[cream::kCount]={80,-13,40,50,350,12,35,0,10,35,7,25,-12,100,1};
+  int p[cream::kCount]={80,-13,40,50,350,12,35,0,10,35,7,25,-12,100,1,1,25,8,40,20,18,60};
   for(int i=0;i<cream::kCount;++i)unit_set_param_value(i,p[i]);
   unit_set_tempo((93u<<16)+16384u);unit_reset();
   cream::DSP reference;reference.set(p);reference.setTempo(93.25f);reference.reset();
@@ -65,7 +65,7 @@ int main() {
     unit_render(quad.data()+4*n,actual.data()+2*n,frames);
     reference.process(stereo.data()+2*n,expected.data()+2*n,frames);
   }
-  check(actual==expected,"master stride matches original DSP with pitch, noise and tempo delay active");
+  check(actual==expected,"four-channel stride matches stereo DSP with all effects active");
   for(int n=0;n<count;++n){quad[4*n+2]=-.4f;quad[4*n+3]=.3f;}
   unit_reset();
   for(int n=0;n<count;n+=37)unit_render(quad.data()+4*n,actual.data()+2*n,std::min(37,count-n));
@@ -76,7 +76,7 @@ int main() {
   unit_reset();
   for(int n=0;n<count;n+=64)unit_render(stereo.data()+2*n,actual.data()+2*n,std::min(64,count-n));
   check(actual==expected,"stereo compatibility path matches master output");
-  check(cream::SyncEcho::kBytes+cream::PitchShift::kBytes==128772,"audio buffers remain 128772 bytes");
+  check(cream::MasterEcho::kBytes+cream::PitchShift::kBytes+cream::SimpleChorus::kBytes+cream::SimpleReverb::kBytes==246088,"audio buffers use 246088 bytes");
   unit_teardown();
   return failures?1:0;
 }
