@@ -1,0 +1,38 @@
+#include "unit.h"
+const __unit_header unit_header_t unit_header = {
+    .header_size = sizeof(unit_header_t),
+    .target = UNIT_TARGET_PLATFORM | k_unit_module_masterfx,
+    .api = UNIT_API_VERSION,
+    .dev_id = 0x55344752U,
+    .unit_id = 0x43524732U,
+    .version = 0x00000400U,
+    .name = "Cream Grit M",
+    .num_presets = 2,
+    .num_params = 15,
+    .params = {
+        {0, 100, 0, 65, k_unit_param_type_percent, 0, 0, 0, {"GRIT"}},
+        {-24, 0, 0, 0, k_unit_param_type_semi, 0, 0, 0, {"CLOCK"}},
+        {0, 100, 0, 40, k_unit_param_type_percent, 0, 0, 0, {"BODY"}},
+        {0, 100, 0, 55, k_unit_param_type_percent, 0, 0, 0, {"TONE"}},
+        {150, 1200, 150, 350, k_unit_param_type_hertz, 0, 0, 0, {"SPLIT"}},
+        {6, 16, 6, 12, k_unit_param_type_none, 0, 0, 0, {"BITS"}},
+        {0, 100, 0, 30, k_unit_param_type_percent, 0, 0, 0, {"DRIVE"}},
+        {-24, 6, 0, 0, k_unit_param_type_db, 0, 0, 0, {"LEVEL"}},
+        {0, 100, 0, 10, k_unit_param_type_percent, 0, 0, 0, {"RADIO"}},
+        {0, 100, 0, 0, k_unit_param_type_percent, 0, 0, 0, {"ECHO"}},
+        {0, 8, 0, 5, k_unit_param_type_strings, 0, 0, 0, {"NOTE"}},
+        {0, 85, 0, 25, k_unit_param_type_percent, 0, 0, 0, {"FEEDBACK"}},
+        {-36, 24, 0, 0, k_unit_param_type_semi, 0, 0, 0, {"PITCH"}},
+        {0, 100, 0, 100, k_unit_param_type_percent, 0, 0, 0, {"P-MIX"}},
+        {0, 1, 0, 1, k_unit_param_type_strings, 0, 0, 0, {"P-SCOPE"}},
+        {0,0,0,0,k_unit_param_type_none,0,0,0,{""}},
+        {0,0,0,0,k_unit_param_type_none,0,0,0,{""}},
+        {0,0,0,0,k_unit_param_type_none,0,0,0,{""}},
+        {0,0,0,0,k_unit_param_type_none,0,0,0,{""}},
+        {0,0,0,0,k_unit_param_type_none,0,0,0,{""}},
+        {0,0,0,0,k_unit_param_type_none,0,0,0,{""}},
+        {0,0,0,0,k_unit_param_type_none,0,0,0,{""}},
+        {0,0,0,0,k_unit_param_type_none,0,0,0,{""}},
+        {0,0,0,0,k_unit_param_type_none,0,0,0,{""}}
+    }
+};

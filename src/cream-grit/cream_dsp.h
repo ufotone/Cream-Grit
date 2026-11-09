@@ -67,7 +67,7 @@ class DSP {
     echo_.setTiming(bpm_,target_[10]);echo_.reset();
     pitch_.reset();pitchActive_=target_[12]!=1.f&&target_[13]>0.f?1.f:0.f;
   }
-  void process(const float* in, float* out, std::size_t frames) {
+  void process(const float* in, float* out, std::size_t frames, std::size_t inputStride=2) {
     constexpr float slew = .0020811647f;
     const float attack=pole(1.f/(6.28318530718f*.012f));
     const float release=pole(1.f/(6.28318530718f*.140f));
@@ -80,7 +80,7 @@ class DSP {
       const float grit=smooth_[0], inc=smooth_[1], body=smooth_[2];
       const float tone=smooth_[3], cross=smooth_[4], q=smooth_[5];
       const float drive=smooth_[6], gain=smooth_[7];
-      float x[2]={in[2*n],in[2*n+1]}, lo[2], high[2];
+      float x[2]={in[inputStride*n],in[inputStride*n+1]}, lo[2], high[2];
       float wet[2];
       float pitchIn[2],air[2];
       for(int c=0;c<2;++c) {

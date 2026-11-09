@@ -7,14 +7,25 @@ class Delay {
   Delay() { for(int i=0;i<cream::kCount;++i) params_[i].store(cream::kDefault[i]); }
   int8_t Init(const unit_runtime_desc_t* d) {
     if(d->samplerate!=48000) return k_unit_err_samplerate;
+#ifdef CREAM_GRIT_MASTER
+    if((d->input_channels!=2 && d->input_channels!=4) || d->output_channels!=2) return k_unit_err_geometry;
+    inputChannels_=d->input_channels;
+#else
     if(d->input_channels!=2 || d->output_channels!=2) return k_unit_err_geometry;
+#endif
     Reset(); return k_unit_err_none;
   }
   void Teardown() {}
   void Reset() { sync(); dsp_.reset(); }
   void Resume() { Reset(); }
   void Suspend() {}
-  void Process(const float* in,float* out,size_t frames) { sync(); dsp_.process(in,out,frames); }
+  void Process(const float* in,float* out,size_t frames) {
+    sync();
+#ifdef CREAM_GRIT_MASTER
+    if(inputChannels_==4){dsp_.process(in,out,frames,4);return;}
+#endif
+    dsp_.process(in,out,frames);
+  }
   void setParameter(uint8_t i,int32_t v) {
     if(i<cream::kCount) params_[i].store(std::max(cream::kMin[i],std::min(cream::kMax[i],int(v))),std::memory_order_relaxed);
   }
@@ -50,5 +61,8 @@ class Delay {
   int cached_[cream::kCount]={};
   uint32_t cachedTempo_=0;
   bool configured_=false;
+#ifdef CREAM_GRIT_MASTER
+  uint8_t inputChannels_=4;
+#endif
   cream::DSP dsp_;
 };
