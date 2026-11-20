@@ -2,6 +2,12 @@
 
 KORG drumlogue用のローファイ、ピッチシフト、テンポ同期ディレイFX。DELAY版とMASTER版があります。
 
+### PC / Mac版（VSTポート）
+
+**[Cream Grit M — VST版の専用ページ](docs/VST.md)** · [入手・ビルド用README](vst/README.md)
+
+Windowsは動作確認済み。**Macは未テストのアルファ版**です。WindowsはVST3 / Standalone、MacはVST3 / AU / Standaloneをビルドしています。導入・使い方・パラメーターは専用ページをご覧ください。以下はdrumlogue版の説明です。
+
 ## 日本語
 
 ### 導入
@@ -75,6 +81,8 @@ v0.6.0-beta.1では、コーラスの後にディレイとリバーブを並列�
 PITCHが0、またはP-MIXが0ならピッチ処理を休止します。FULL・P-MIX 100%では処理対象の音全体をピッチ音に置き換えます。DELAY版では本体側の原音が並列に鳴り、MASTER版ではMASTERに送った音を直接処理します。ピッチダウンでは前段LPFを弱め、ピッチアップでは折り返し対策。
 
 ## English
+
+For the desktop port, see the **[Cream Grit M VST guide](docs/VST.md#english)** and [VST README](vst/README.md). Windows has been tested; **macOS is an untested alpha**. The sections below describe the drumlogue edition.
 
 A lo-fi, pitch-shift and tempo-sync delay effect for KORG drumlogue, available for the DELAY and MASTER slots.
 
