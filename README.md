@@ -1,12 +1,16 @@
 # Cream Grit
 
 KORG drumlogue用のローファイ、ピッチシフト、テンポ同期ディレイFX。DELAY版とMASTER版があります。
+エフェクトのDELAY UNITかMASTER UNITかを選択し drumlogue本体に入れてください。
+両方同時使用は動作確認等一切行っていません。
 
-### PC / Mac版（VSTポート）
+### PC / Mac版（VST３エフェクト）　AI（Claude)に移植してもらったものです。
+以下専用ページを参照ください。
 
 **[Cream Grit M — VST版の専用ページ](docs/VST.md)** · [入手・ビルド用README](vst/README.md)
 
-Windowsは動作確認済み。**Macは未テストのアルファ版**です。WindowsはVST3 / Standalone、MacはVST3 / AU / Standaloneをビルドしています。導入・使い方・パラメーターは専用ページをご覧ください。以下はdrumlogue版の説明です。
+Windowsは動作確認済み。**Macは未テストのアルファ版**です。WindowsはVST3 / Standalone、MacはVST3 / AU / Standaloneをビルドしています。
+導入・使い方・パラメーターは専用ページをご覧ください。以下はdrumlogue版の説明です。
 
 ## 日本語
 
