@@ -5,7 +5,7 @@ KORG drumlogue用のローファイ、ピッチシフト、テンポ同期ディ
 両方同時使用は動作確認等一切行っていません。
 
 ### PC / Mac版（VST３エフェクト）
-ＶＳＴ版は AI（Claude)に移植してもらったものです。
+ＶＳＴ版は AI（Claude)に移植してもらったものです。v0.6.0-beta.1を元にしています。
 以下専用ページを参照ください。
 
 **[Cream Grit M — VST版の専用ページ](docs/VST.md)** · [入手・ビルド用README](vst/README.md)
@@ -87,7 +87,8 @@ PITCHが0、またはP-MIXが0ならピッチ処理を休止します。FULL・P
 
 ## English
 
-For the desktop port, see the **[Cream Grit M VST guide](docs/VST.md#english)** and [VST README](vst/README.md). Windows has been tested; **macOS is an untested alpha**. The sections below describe the drumlogue edition.
+For the desktop port, see the **[Cream Grit M VST guide](docs/VST.md#english)** and [VST README](vst/README.md). 
+Windows has been tested; **macOS is an untested alpha**. The sections below describe the drumlogue edition.(v0.6.0-beta.1 based)
 
 A lo-fi, pitch-shift and tempo-sync delay effect for KORG drumlogue, available for the DELAY and MASTER slots.
 
