@@ -4,7 +4,8 @@ KORG drumlogue用のローファイ、ピッチシフト、テンポ同期ディ
 エフェクトのDELAY UNITかMASTER UNITかを選択し drumlogue本体に入れてください。
 両方同時使用は動作確認等一切行っていません。
 
-### PC / Mac版（VST３エフェクト）　AI（Claude)に移植してもらったものです。
+### PC / Mac版（VST３エフェクト）
+ＶＳＴ版は AI（Claude)に移植してもらったものです。
 以下専用ページを参照ください。
 
 **[Cream Grit M — VST版の専用ページ](docs/VST.md)** · [入手・ビルド用README](vst/README.md)
