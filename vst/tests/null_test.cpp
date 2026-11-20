@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <vector>
-#include "../../src/cream-grit/cream_dsp.h"
+#include "../../tests/reference/src/cream-grit/cream_dsp.h"
 #include "../dsp/cream_dsp_sr.h"
 
 // MSVC: exact. Clang constant-folds exp()/pow() on the original's constexpr 48 kHz paths
@@ -47,7 +47,7 @@ int main(){
   {  // bit-exact at 48 kHz
     const size_t frames=48000*6,block=64;
     std::vector<float> in,a(frames*2),b(frames*2);fill(in,frames,48000.f);
-    auto* ref=new cream::DSP();auto* port=new creamvst::DSP();
+    auto* ref=new creamref::DSP();auto* port=new creamvst::DSP();
     port->prepare(48000.f);
     auto sc=scenes();
     ref->set(sc[0].data());port->set(sc[0].data());ref->reset();port->reset();

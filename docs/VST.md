@@ -1,5 +1,7 @@
 # Cream Grit M — VST版ガイド
 
+![Cream Grit — lo-fi audio effect](assets/cream-grit-banner.png)
+
 <a id="japanese"></a>
 
 **Windows：動作確認済み ／ macOS：未テストのアルファ版**

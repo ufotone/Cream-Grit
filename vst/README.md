@@ -1,5 +1,7 @@
 # Cream Grit M — VST port
 
+![Cream Grit — lo-fi audio effect](../docs/assets/cream-grit-banner.png)
+
 drumlogue用Cream GritのMASTER版をPC/Macへ移植したオーディオエフェクトです。ローファイ加工、ピッチシフト、コンプレッサー、テンポ同期ディレイ、コーラス、リバーブ、リング変調、ランダムパンを備えます。drumlogue本体は不要です。
 
 **Windows：動作確認済み。macOS：未テストのアルファ版。** Windowsの確認結果は、すべてのDAW・オーディオデバイスでの互換性を保証するものではありません。macOSはCIビルドが成功していますが、実機での起動・音声処理・DAWへの読み込みは未確認です。

@@ -1,5 +1,7 @@
 # Cream Grit
 
+![Cream Grit — lo-fi audio effect](docs/assets/cream-grit-banner.png)
+
 KORG drumlogue用のローファイ、ピッチシフト、テンポ同期ディレイFX。DELAY版とMASTER版があります。
 エフェクトのDELAY UNITかMASTER UNITかを選択し drumlogue本体に入れてください。
 両方同時使用は動作確認等一切行っていません。
@@ -14,6 +16,12 @@ KORG drumlogue用のローファイ、ピッチシフト、テンポ同期ディ
 
 Windowsは動作確認済み。**Macは未テストのアルファ版**です。WindowsはVST3 / Standalone、MacはVST3 / AU / Standaloneをビルドしています。
 導入・使い方・パラメーターは専用ページをご覧ください。以下はdrumlogue版の説明です。
+
+### drumlogue逆移植試作版 — v0.7.0-preview.1
+
+**[試作版Release・ダウンロード](https://github.com/ufotone/Cream-Grit/releases/tag/v0.7.0-preview.1)** · **[導入・仕様・検証結果](BACKPORT.md)**
+
+VST版のSAMPLE・COMP・RINGを逆移植しました。P-MODEはDRUM / SAMPLE、P-SCOPEはHIGH固定。RINGとMASTERのCHORUSはON/OFF、REVERBの量と減衰時間は調整可能です。**実機での動作・CPU負荷は未確認です。旧プログラムのFX設定値と互換性がないため、導入後はFXプリセットを読み直してください。** 以下のdrumlogue説明は従来版（v0.6以前）です。試作版は専用ガイドをご覧ください。
 
 ## 日本語
 
@@ -88,6 +96,12 @@ v0.6.0-beta.1では、コーラスの後にディレイとリバーブを並列�
 PITCHが0、またはP-MIXが0ならピッチ処理を休止します。FULL・P-MIX 100%では処理対象の音全体をピッチ音に置き換えます。DELAY版では本体側の原音が並列に鳴り、MASTER版ではMASTERに送った音を直接処理します。ピッチダウンでは前段LPFを弱め、ピッチアップでは折り返し対策。
 
 ## English
+
+### drumlogue backport preview — v0.7.0-preview.1
+
+**[Preview release / downloads](https://github.com/ufotone/Cream-Grit/releases/tag/v0.7.0-preview.1)** · **[Installation, specifications and validation](BACKPORT.md#english)**
+
+Backports SAMPLE, COMP and RING from the VST version. P-MODE is DRUM / SAMPLE; P-SCOPE is fixed to HIGH. RING and MASTER CHORUS are ON/OFF; reverb amount and decay remain adjustable. **Hardware operation and CPU headroom are untested. Saved FX settings from older programs are incompatible: reload an FX preset after installation.** The drumlogue sections below describe the original editions (v0.6 and earlier); use the dedicated guide for this preview.
 
 ### PC / Mac edition (VST3 effect)
 

@@ -16,15 +16,17 @@ class PitchShift {
   }
   void reset() {
     write_=valid_=0;phase_=0.f;ready_=0.f;idle_=true;aa_=aaTarget_;depth_=depthTarget_;
+    holdPhase_=0.f;held_[0]=held_[1]=0.f;
     for(auto &c:filter_)for(float &s:c)s=0.f;
   }
   float readiness()const {return ready_;}
-  void tick(const float* input,float* output,float ratio,bool enabled) {
+  void tick(const float* input,float* output,float ratio,bool enabled, bool sampleMode=false, float holdInc=1.f) {
     if(!enabled) {
       if(!idle_)reset();
       output[0]=input[0];output[1]=input[1];return;
     }
     idle_=false;
+    if(sampleMode){tickSampler(input,output,ratio,holdInc);return;}
     aa_+=.0020811647f*(aaTarget_-aa_);
     depth_+=.0020811647f*(depthTarget_-depth_);
     for(int c=0;c<2;++c) {
@@ -48,6 +50,34 @@ class PitchShift {
     if(valid_>=4810)ready_+=.0020811647f*(1.f-ready_);
   }
  private:
+  void tickSampler(const float* input,float* output,float ratio,float holdInc) {
+    for(int c=0;c<2;++c) {
+      const float s=std::max(-2.f,std::min(2.f,input[c]))*16383.5f;
+      buffer_[write_*2+c]=static_cast<int16_t>(s+(s>=0.f?.5f:-.5f));
+    }
+    if(valid_<kFrames)++valid_;
+    float other=phase_+.5f;if(other>=1.f)other-=1.f;
+    const float weight=1.f-std::fabs(2.f*phase_-1.f);
+    // Short grains (22 ms) so the second read tap is heard as grain, not as a slapback echo.
+    const float a=8.f+1056.f*phase_,b=8.f+1056.f*other;
+    holdPhase_+=std::max(1.e-4f,std::min(1.f,holdInc*ratio));
+    if(holdPhase_>=1.f) {
+      holdPhase_-=1.f;
+      for(int c=0;c<2;++c)held_[c]=weight*readNearest(a,c)+(1.f-weight)*readNearest(b,c);
+    }
+    output[0]=held_[0];output[1]=held_[1];
+    write_=(write_+1)&kMask;
+    phase_+=(1.f-ratio)/1056.f;
+    if(phase_<0.f)phase_+=1.f;
+    if(phase_>=1.f)phase_-=1.f;
+    if(valid_>=4810)ready_+=.0020811647f*(1.f-ready_);
+  }
+  float readNearest(float delay,int c)const {
+    float pos=static_cast<float>(write_)-delay;
+    if(pos<0.f)pos+=kFrames;
+    return sample(static_cast<uint32_t>(pos)&kMask,c);
+  }
+  float holdPhase_=0.f,held_[2]={};
   float sample(uint32_t i,int c)const {
     return valid_==kFrames||i<valid_?buffer_[i*2+c]*(2.f/32767.f):0.f;
   }

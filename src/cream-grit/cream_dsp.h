@@ -13,34 +13,41 @@
 namespace cream {
 constexpr float kFs = 48000.f;
 #ifdef CREAM_GRIT_MASTER
-constexpr int kCount = 24;
+constexpr int kOrigCount = 24;
 #else
-constexpr int kCount = 15;
+constexpr int kOrigCount = 15;
 #endif
+
+constexpr int kCount=kOrigCount+4;
+constexpr int kComp=kOrigCount, kPMode=kOrigCount+1, kRing=kOrigCount+2, kRingHz=kOrigCount+3;
 
 static const int kMin[kCount] = {0,-24,0,0,150,6,0,-24,0,0,0,0,-36,0,0
 #ifdef CREAM_GRIT_MASTER
 ,0,0,1,0,0,3,0,1,0
 #endif
+,0,0,0,0
 };
 static const int kMax[kCount] = {100,0,100,100,1200,16,100,6,100,100,8,85,24,100,1
 #ifdef CREAM_GRIT_MASTER
 ,100,100,30,100,100,80,100,80,1
 #endif
+,100,1,50,230
 };
 static const int kDefault[kCount] = {65,0,40,55,350,12,30,0,10,0,5,25,0,100,1
 #ifdef CREAM_GRIT_MASTER
 ,0,0,8,40,0,18,60,10,0
 #endif
+,0,0,0,0
 };
 static const int kDown[kCount] = {80,-13,40,50,350,12,35,0,10,0,5,25,0,100,1
 #ifdef CREAM_GRIT_MASTER
 ,0,0,8,40,0,18,60,10,0
 #endif
+,0,0,0,0
 };
 #ifdef CREAM_GRIT_MASTER
-static const int kWide[kCount]={45,-7,30,65,350,12,30,0,10,25,5,30,0,100,1,0,20,8,35,18,18,60,10,0};
-static const int kDrift[kCount]={45,-7,30,65,350,12,30,0,10,25,5,30,0,100,1,60,20,8,35,18,18,60,10,0};
+static const int kWide[kCount]={45,-7,30,65,350,12,30,0,10,25,5,30,0,100,1,0,20,8,35,18,18,60,10,0,0,0,0,0};
+static const int kDrift[kCount]={45,-7,30,65,350,12,30,0,10,25,5,30,0,100,1,60,20,8,35,18,18,60,10,0,0,0,0,0};
 #endif
 inline float pole(float hz) { return 1.f - std::exp(-6.28318530718f * hz / kFs); }
 inline float saturate(float x) {
@@ -84,6 +91,11 @@ class DSP {
     target_[13]=v[13]*.01f;
     target_[14]=static_cast<float>(v[14]);
     pitch_.setRatio(target_[12]);
+    target_[kComp]=v[kComp]*.01f;
+    target_[kPMode]=static_cast<float>(v[kPMode]);
+    target_[kRing]=v[kRingHz]>0?v[kRing]*.01f:0.f;  // RM-FREQ 0 = off
+    target_[kRingHz]=static_cast<float>(v[kRingHz]);
+
 #ifdef CREAM_GRIT_MASTER
     target_[15]=v[15]*.01f;
     target_[16]=v[16]*.01f;target_[17]=v[17]*.1f;target_[18]=v[18]*.01f;
@@ -98,6 +110,7 @@ class DSP {
     phase_=0.f; envelope_=0.f;
     random_=0x2241200u;
     for(float &v:noiseFilter_) v=0.f;
+    compEnv_=0.f;compGain_=1.f;compCounter_=0;ringPhase_=0.f;ringPowIn_=ringPowOut_=0.f;ringGain_=1.f;
     for(int i=0;i<kCount;++i) smooth_[i]=target_[i];
     echo_.setTiming(bpm_,target_[10]);echo_.reset();
     pitch_.reset();pitchActive_=target_[12]!=1.f&&target_[13]>0.f?1.f:0.f;
@@ -112,6 +125,10 @@ class DSP {
     const float pre=pole(14000.f);
     const float fmHP=pole(2400.f), fmLP=pole(11500.f);
     const float noiseRelease=pole(1.f/(6.28318530718f*.080f));
+    const float compAttack=pole(1.f/(6.28318530718f*.002f));
+    const float compRelease=pole(1.f/(6.28318530718f*.090f));
+    const float ringPow=pole(1.f/(6.28318530718f*.008f));
+    const float ringGlide=pole(1.f/(6.28318530718f*.002f));
     echo_.setTiming(bpm_,target_[10]);
     for(std::size_t n=0;n<frames;++n) {
       for(int i=0;i<kCount;++i) smooth_[i]+=slew*(target_[i]-smooth_[i]);
@@ -165,7 +182,7 @@ class DSP {
       pitchActive_+=slew*(pitchGoal-pitchActive_);
       if(pitchGoal==0.f&&pitchActive_<1.e-6f)pitchActive_=0.f;
       const bool pitchOn=pitchActive_>0.f;
-      float shifted[2];pitch_.tick(pitchIn,shifted,smooth_[12],pitchOn);
+      float shifted[2];pitch_.tick(pitchIn,shifted,smooth_[12],pitchOn, target_[kPMode]>.5f, inc);
       const float pitchMix=smooth_[13]*pitchActive_*pitch_.readiness();
       for(int c=0;c<2;++c) {
         float delta=shifted[c]-pitchIn[c],hiDelta=delta;
@@ -174,6 +191,23 @@ class DSP {
         wet[c]+=pitchMix*(hiDelta+smooth_[14]*(delta-hiDelta));
         wet[c]+=air[c];
       }
+      if(target_[kComp]>0.f||smooth_[kComp]>1.e-6f) compress(wet,smooth_[kComp],compAttack,compRelease);
+      if(target_[kRing]>0.f||smooth_[kRing]>1.e-6f) {
+        // Ring-modulated copy added on top: wet *= 1 + m*carrier (m <= .5, never reaches silence).
+        ringPhase_+=smooth_[kRingHz]/kFs;if(ringPhase_>=1.f)ringPhase_-=1.f;
+        const float carrier=ringSine(ringPhase_);
+        const float m=smooth_[kRing];
+        float dry2=0.f,out2=0.f;
+        for(int c=0;c<2;++c){dry2+=wet[c]*wet[c];wet[c]+=m*wet[c]*carrier;out2+=wet[c]*wet[c];}
+        // Loudness compensation: the carrier makes the level pump at RM-FREQ (a tremolo).
+        // Track input and output power (~8 ms) and restore the input level, so the ring
+        // colour stays but the overall volume stays where the master level puts it.
+        ringPowIn_+=ringPow*(dry2-ringPowIn_);
+        ringPowOut_+=ringPow*(out2-ringPowOut_);
+        const float want=std::sqrt((ringPowIn_+1.e-9f)/(ringPowOut_+1.e-9f));
+        ringGain_+=ringGlide*(std::max(.25f,std::min(4.f,want))-ringGain_);
+        for(int c=0;c<2;++c)wet[c]*=ringGain_;
+      } else {ringPowIn_=ringPowOut_=0.f;ringGain_=1.f;}
       const bool enabled=target_[9]>0.f || smooth_[9]>1.e-6f;
 #ifdef CREAM_GRIT_MASTER
       float mod[2],space[2],panned[2];
@@ -191,6 +225,42 @@ class DSP {
     }
   }
  private:
+  // Full-band, stereo-linked sampler-style squash: peak detector, threshold falls and
+  // ratio rises with amount, auto makeup, then a soft saturation for punch.
+  void compress(float* w,float amount,float attack,float release) {
+    const float level=std::max(std::fabs(w[0]),std::fabs(w[1]));
+    compEnv_+=(level>compEnv_?attack:release)*(level-compEnv_);
+    // Envelope runs at 48 kHz; log/pow gain calculation runs at 12 kHz.
+    if(compCounter_++ == 0) {
+      const float db=20.f*std::log10(compEnv_+1.e-9f);
+      const float threshold=-4.f-26.f*amount, slope=1.f-1.f/(1.f+11.f*amount), knee=6.f;
+      const float over=db-threshold;
+      float reduction=0.f;
+      if(over>knee*.5f) reduction=over*slope;
+      else if(over>-knee*.5f){const float t=over+knee*.5f;reduction=slope*t*t/(2.f*knee);}
+      const float makeup=-threshold*slope*.55f;
+      compGain_=std::pow(10.f,(makeup-reduction)*.05f);
+    }
+    compCounter_ &= 3;
+    const float g=compGain_;
+    const float drive=1.f+1.5f*amount;
+    for(int c=0;c<2;++c){
+      const float y=w[c]*g;
+      w[c]=y+amount*(saturate(y*drive)/drive*1.15f-y);
+    }
+  }
+  float compEnv_=0.f,ringPhase_=0.f,ringPowIn_=0.f,ringPowOut_=0.f,ringGain_=1.f;
+  unsigned compCounter_=0;
+  float compGain_=1.f;
+  // Odd polynomial sine on [-pi/2,pi/2], max absolute error < 0.00016.
+  static float ringSine(float phase) {
+    float x=phase<.5f?phase:phase-1.f;
+    if(x>.25f)x=.5f-x;
+    if(x<-.25f)x=-.5f-x;
+    x*=6.28318530718f;
+    const float z=x*x;
+    return x*(1.f+z*(-1.f/6.f+z*(1.f/120.f-z/5040.f)));
+  }
   static float lp(float x,float &state,float a) {
     state+=a*(x-state);
     if(std::fabs(state)<1.e-20f) state=0.f;
