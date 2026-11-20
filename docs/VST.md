@@ -2,7 +2,8 @@
 
 **Windows：動作確認済み ／ macOS：未テストのアルファ版**
 
-drumlogue用Cream Grit MASTERをもとにした、PC/Mac用のオーディオエフェクトです。ローファイな質感、サンプラー風ピッチシフト、音の圧縮感と空間系をまとめて使えます。drumlogue本体は不要です。
+drumlogue用Cream Grit MASTERをもとにした、PC/Mac用のオーディオエフェクトです。ローファイな質感、サンプラー風ピッチシフト、音の圧縮感と空間系をまとめて使えます。
+ＶＳＴエフェクトをホストできるソフトウェアが必要です。　この移植はAI(Claude)が行っており十分なテストはされていません。 
 
 [入手・ビルド用README](../vst/README.md) · [drumlogue版へ戻る](../README.md) · [English](#english)
 
