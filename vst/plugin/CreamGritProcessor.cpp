@@ -20,6 +20,7 @@ const ParamInfo kInfo[] = {
   {"cdepth","C-DEPTH",Kind::percent},{"reverb","REVERB",Kind::percent},{"rdecay","R-DECAY",Kind::tenthSec},
   {"rdamp","R-DAMP",Kind::percent},{"prate","P-RATE",Kind::tenthHz},{"pwave","P-WAVE",Kind::wave},
   {"comp","COMP",Kind::percent},{"pmode","P-MODE",Kind::pmode},
+  {"ring","RING",Kind::percent},{"ringhz","RM-FREQ",Kind::hertz},
 };
 #ifndef CREAM_GRIT_MASTER
 #error "The VST build is MASTER edition only"
@@ -30,7 +31,7 @@ juce::String formatValue(Kind k, int v) {
   switch (k) {
     case Kind::percent: return juce::String(v) + "%";
     case Kind::semi:    return (v > 0 ? "+" : "") + juce::String(v) + " st";
-    case Kind::hertz:   return juce::String(v) + " Hz";
+    case Kind::hertz:   return v == 0 ? juce::String("OFF") : juce::String(v) + " Hz";  // only RM-FREQ reaches 0
     case Kind::db:      return (v > 0 ? "+" : "") + juce::String(v) + " dB";
     case Kind::note:    return SyncEcho::noteName(v);
     case Kind::scope:   return v ? "FULL" : "HIGH";
@@ -44,6 +45,7 @@ juce::String formatValue(Kind k, int v) {
 
 int parseValue(Kind k, const juce::String& text) {
   const auto t = text.trim().toUpperCase();
+  if (k == Kind::hertz && t.startsWith("OFF")) return 0;
   if (k == Kind::note) { for (int i = 0; i < 9; ++i) if (t == SyncEcho::noteName(i)) return i; }
   if (k == Kind::scope) return t.startsWith("F") ? 1 : t.startsWith("H") ? 0 : t.getIntValue();
   if (k == Kind::pmode) return t.startsWith("D") ? 2 : t.startsWith("S") ? 1 : t.startsWith("C") ? 0 : t.getIntValue();
@@ -54,9 +56,36 @@ int parseValue(Kind k, const juce::String& text) {
 
 constexpr int kHostBpm = 29;
 
+// Order shown in hosts / the generic editor (DSP indices; kMbpm = the plugin-only MBPM).
+// Parameter IDs are strings, so reordering does not break saved state or automation.
+constexpr int kMbpm = -1;
+const int kDisplayOrder[] = {
+  0, 1, 5, 3, 6, 4, 8,                // lo-fi: GRIT, CLOCK, BITS, TONE, DRIVE, SPLIT, RADIO
+  2, kComp,                           // dynamics: BODY, COMP
+  12, kPMode, 13, 14,                 // pitch: PITCH, P-MODE, P-MIX, P-SCOPE
+  9, 10, 11, kMbpm,                   // echo: ECHO, NOTE, FEEDBACK, MBPM
+  16, 17, 18,                         // chorus: CHORUS, C-RATE, C-DEPTH
+  19, 20, 21,                         // reverb: REVERB, R-DECAY, R-DAMP
+  kRing, kRingHz,                     // ring: RING, RM-FREQ
+  15, 22, 23,                         // pan: PAN, P-RATE, P-WAVE
+  7,                                  // output: LEVEL
+};
+static_assert(sizeof(kDisplayOrder)/sizeof(kDisplayOrder[0]) == kCount + 1, "display order must list every parameter once");
+
+std::unique_ptr<juce::AudioParameterInt> makeMbpm() {
+  // MBPM: plugin-only tempo override. kHostBpm (29) = follow the host, 30-300 = manual.
+  return std::make_unique<juce::AudioParameterInt>(
+      juce::ParameterID{"mbpm", 1}, "MBPM", kHostBpm, 300, kHostBpm,
+      juce::AudioParameterIntAttributes()
+          .withStringFromValueFunction([](int v, int) { return v <= kHostBpm ? juce::String("HOST") : juce::String(v) + " BPM"; })
+          .withValueFromStringFunction([](const juce::String& s) {
+            return s.trim().toUpperCase().startsWith("H") ? kHostBpm : juce::jlimit(kHostBpm, 300, s.getIntValue()); }));
+}
+
 juce::AudioProcessorValueTreeState::ParameterLayout makeLayout() {
   juce::AudioProcessorValueTreeState::ParameterLayout layout;
-  for (int i = 0; i < kCount; ++i) {
+  for (int i : kDisplayOrder) {
+    if (i == kMbpm) { layout.add(makeMbpm()); continue; }
     const auto& p = kInfo[i];
     const Kind kind = p.kind;
     layout.add(std::make_unique<juce::AudioParameterInt>(
@@ -65,13 +94,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout makeLayout() {
             .withStringFromValueFunction([kind](int v, int) { return formatValue(kind, v); })
             .withValueFromStringFunction([kind](const juce::String& s) { return parseValue(kind, s); })));
   }
-  // MBPM: plugin-only tempo override. kHostBpm (29) = follow the host, 30-300 = manual.
-  layout.add(std::make_unique<juce::AudioParameterInt>(
-      juce::ParameterID{"mbpm", 1}, "MBPM", kHostBpm, 300, kHostBpm,
-      juce::AudioParameterIntAttributes()
-          .withStringFromValueFunction([](int v, int) { return v <= kHostBpm ? juce::String("HOST") : juce::String(v) + " BPM"; })
-          .withValueFromStringFunction([](const juce::String& s) {
-            return s.trim().toUpperCase().startsWith("H") ? kHostBpm : juce::jlimit(kHostBpm, 300, s.getIntValue()); })));
   return layout;
 }
 }  // namespace
