@@ -32,3 +32,25 @@ MASTER spatial effects / MASTER空間系の確認：
 cl /nologo /std:c++14 /O2 /EHsc /W4 /DCREAM_GRIT_MASTER=1 /I src\cream-grit tests\space_test.cpp /Fe:space_test.exe
 space_test.exe
 ```
+
+
+## Backport checks / 逆移植の追加確認
+
+Run these in a Visual Studio developer command prompt from the repository root.
+Replace `SDK_COMMON` with the logue-sdk `platform/drumlogue/common` directory.
+The original `cream_test.cpp` and `space_test.cpp` checks above remain applicable.
+
+```bat
+cl /nologo /std:c++14 /O2 /EHsc /fp:strict tests\backport_test.cpp /Fe:backport_delay.exe
+backport_delay.exe
+cl /nologo /std:c++14 /O2 /EHsc /fp:strict /DCREAM_GRIT_MASTER=1 tests\backport_test.cpp /Fe:backport_master.exe
+backport_master.exe
+cl /nologo /std:c++14 /O2 /EHsc /fp:strict /I SDK_COMMON tests\backport_unit_test.cpp /Fe:backport_unit_delay.exe
+backport_unit_delay.exe
+cl /nologo /std:c++14 /O2 /EHsc /fp:strict /DCREAM_GRIT_MASTER=1 /I SDK_COMMON tests\backport_unit_test.cpp /Fe:backport_unit_master.exe
+backport_unit_master.exe
+```
+
+`tests/reference` is a frozen copy of the pre-backport DSP used by the backport and
+VST null checks. Keep it with the source bundle. See `BACKPORT.md` for the chosen
+fixed parameters, CPU approximations and the limits of desktop verification.

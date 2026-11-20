@@ -14,28 +14,28 @@ int main() {
  bad=d;bad.input_channels=1;check(unit_init(&bad)==k_unit_err_geometry,"wrong channel geometry rejected");
  check(unit_init(&d)==k_unit_err_none,"48k stereo unit initializes");
 #ifdef CREAM_GRIT_MASTER
- const int count=24;const int presets=4;
+ const int count=23;const int presets=4;
 #else
- const int count=15;const int presets=2;
+ const int count=17;const int presets=2;
 #endif
  check(unit_header.num_params==count && unit_header.num_presets==presets,"metadata matches parameter and preset counts");
  bool defaults=true;for(int i=0;i<count;++i) defaults &= unit_get_param_value(i)==unit_header.params[i].init;
  check(defaults,"parameter defaults match header");
- check(unit_get_param_value(14)==1 && unit_get_param_value(13)==100,"FULL replacement scope and 100% pitch mix are defaults");
+
  check(unit_get_param_value(8)==10 && unit_get_param_str_value(9,0)==nullptr,"FM radio default is 10; BAND selector removed");
  check(std::strcmp(unit_get_param_str_value(10,5),"1/8")==0 && std::strcmp(unit_get_param_str_value(10,7),"1/8D")==0,"NOTE displays straight and dotted divisions");
- check(std::strcmp(unit_get_param_str_value(14,0),"HIGH")==0 && std::strcmp(unit_get_param_str_value(14,1),"FULL")==0,"pitch scope displays HIGH and FULL");
+
  unit_set_param_value(12,-100);unit_set_param_value(13,200);
  check(unit_get_param_value(12)==-36&&unit_get_param_value(13)==100,"pitch range and mix clamp to their limits");
  unit_load_preset(1);check(unit_get_param_value(1)==-13 && unit_get_param_value(5)==12 && unit_get_preset_index()==1,"Down Dirt loads virtual clock -13 and 12bit");
  check(std::strcmp(unit_get_preset_name(0),"12bit")==0 && std::strcmp(unit_get_preset_name(1),"Down Dirt")==0,"preset names valid");
 #ifdef CREAM_GRIT_MASTER
- check(unit_get_param_value(15)==0&&unit_get_param_str_value(15,1)==nullptr,"main pan defaults to off; stereo echo selector is absent");
- check(std::strcmp(unit_get_param_str_value(23,0),"SINE")==0&&std::strcmp(unit_get_param_str_value(23,1),"SQUARE")==0,"pan waveform labels valid");
+ check(unit_get_param_value(14)==0&&std::strcmp(unit_get_param_str_value(15,1),"ON")==0,"main pan defaults to off; stereo echo selector is absent");
+ check(std::strcmp(unit_get_param_str_value(19,0),"SINE")==0&&std::strcmp(unit_get_param_str_value(19,1),"SQUARE")==0,"pan waveform labels valid");
  unit_load_preset(2);
- check(unit_get_preset_index()==2&&unit_get_param_value(16)>0&&unit_get_param_value(19)>0,"Wide Space enables chorus and reverb");
+ check(unit_get_preset_index()==2&&unit_get_param_value(15)==1&&unit_get_param_value(16)>0,"Wide Space enables chorus and reverb");
  unit_load_preset(3);
- check(unit_get_preset_index()==3&&unit_get_param_value(15)==60&&unit_get_param_value(22)==10,"Random Drift enables main pan");
+ check(unit_get_preset_index()==3&&unit_get_param_value(14)==60&&unit_get_param_value(18)==10,"Random Drift enables main pan");
  unit_load_preset(1);
 #endif
  unit_load_preset(99);check(unit_get_preset_index()==1,"invalid preset ignored");

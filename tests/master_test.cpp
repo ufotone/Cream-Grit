@@ -1,5 +1,5 @@
 #include "unit.h"
-#include "cream_dsp.h"
+#include "cream_unit.h"
 #include <cmath>
 #include <cstdio>
 #include <cstring>
@@ -26,7 +26,7 @@ int main() {
   bad=desc;bad.target=UNIT_TARGET_PLATFORM|k_unit_module_delfx;
   check(unit_init(&bad)==k_unit_err_target,"delay runtime rejected");
   unit_init(&desc);
-  for(int i=0;i<cream::kCount;++i)unit_set_param_value(i,cream::kDefault[i]);
+  unit_load_preset(0);
   unit_set_param_value(0,0);unit_set_param_value(2,0);unit_set_param_value(8,0);
   unit_reset();
   float packed[256],out[130];
@@ -56,8 +56,8 @@ int main() {
     quad[4*n]=stereo[2*n];quad[4*n+1]=stereo[2*n+1];
     quad[4*n+2]=.9f;quad[4*n+3]=-.7f;
   }
-  int p[cream::kCount]={80,-13,40,50,350,12,35,0,10,35,7,25,-12,100,1,60,25,8,40,20,18,60,12,0};
-  for(int i=0;i<cream::kCount;++i)unit_set_param_value(i,p[i]);
+  int p[cream::kCount]={80,-13,40,50,350,12,35,0,10,35,7,25,-12,100,0,60,30,8,50,20,18,60,12,0};
+  for(uint8_t i=0;i<cream::kUiCount;++i){int k=cream::kUiMap[i];unit_set_param_value(i,k==16?(p[k]>0?1:0):p[k]);}
   unit_set_tempo((93u<<16)+16384u);unit_reset();
   cream::DSP reference;reference.set(p);reference.setTempo(93.25f);reference.reset();
   for(int n=0;n<count;n+=64) {
@@ -72,7 +72,7 @@ int main() {
   check(actual==expected,"sidechain changes and callback sizes do not change main output");
   desc.input_channels=2;
   check(unit_init(&desc)==k_unit_err_none,"two-channel runtime compatibility");
-  for(int i=0;i<cream::kCount;++i)unit_set_param_value(i,p[i]);
+  for(uint8_t i=0;i<cream::kUiCount;++i){int k=cream::kUiMap[i];unit_set_param_value(i,k==16?(p[k]>0?1:0):p[k]);}
   unit_reset();
   for(int n=0;n<count;n+=64)unit_render(stereo.data()+2*n,actual.data()+2*n,std::min(64,count-n));
   check(actual==expected,"stereo compatibility path matches master output");
