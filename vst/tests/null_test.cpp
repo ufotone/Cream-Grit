@@ -7,6 +7,11 @@
 #include "../../src/cream-grit/cream_dsp.h"
 #include "../dsp/cream_dsp_sr.h"
 
+// MSVC: exact. Clang constant-folds exp()/pow() on the original's constexpr 48 kHz paths
+// but calls libm at run time in the port, so allow a few ulps of difference there.
+#ifndef NULL_TOLERANCE
+#define NULL_TOLERANCE 0.0
+#endif
 static float noise(uint32_t& s){s^=s<<13;s^=s>>17;s^=s<<5;return (s>>8)*(1.f/8388608.f)-1.f;}
 
 static void fill(std::vector<float>& buf,size_t frames,float fs){
@@ -55,7 +60,7 @@ int main(){
     }
     for(size_t i=0;i<frames*2;++i){double d=std::fabs(double(a[i])-b[i]);if(d>maxDiff)maxDiff=d;if(d>0&&first==SIZE_MAX)first=i;}
     std::printf("48k null: max diff %.3g (first mismatch %lld)\n",maxDiff,first==SIZE_MAX?-1LL:(long long)first);
-    if(maxDiff!=0)++fails;
+    if(maxDiff>NULL_TOLERANCE)++fails;
     delete ref;delete port;
   }
   for(float fs:{44100.f,88200.f,96000.f,192000.f}){
