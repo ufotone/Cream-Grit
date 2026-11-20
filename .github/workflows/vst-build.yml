@@ -1,0 +1,52 @@
+name: VST build
+
+on:
+  workflow_dispatch:
+  push:
+    paths: ["vst/**", "src/**", ".github/workflows/vst-build.yml"]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            name: macOS
+          - os: windows-2022
+            name: Windows
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch JUCE
+        run: git clone --depth 1 --branch 8.0.10 https://github.com/juce-framework/JUCE vst/external/JUCE
+      - name: Configure
+        run: cmake -S vst -B vst/build -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build vst/build --config Release --parallel --target CreamGritM_All null_test_delay null_test_master
+      - name: Null test
+        shell: bash
+        run: |
+          for t in null_test_delay null_test_master; do
+            exe=$(find vst/build -type f \( -name "$t" -o -name "$t.exe" \) | head -1)
+            "$exe"
+          done
+      - name: Package (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          art=vst/build/CreamGritM_artefacts/Release
+          mkdir -p dist
+          cp -R "$art/VST3/Cream Grit M.vst3" "$art/AU/Cream Grit M.component" "$art/Standalone/Cream Grit M.app" dist/
+          codesign --force --deep -s - "dist/Cream Grit M.vst3" "dist/Cream Grit M.component" "dist/Cream Grit M.app"
+          cd dist && zip -qry "../CreamGritM-macOS.zip" .
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          art=vst/build/CreamGritM_artefacts/Release
+          mkdir -p dist && cp -R "$art/VST3/Cream Grit M.vst3" "$art/Standalone/Cream Grit M.exe" dist/
+          cd dist && 7z a -r ../CreamGritM-Windows.zip . >/dev/null
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CreamGritM-${{ matrix.name }}
+          path: CreamGritM-*.zip
