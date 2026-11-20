@@ -5,3 +5,4 @@ src/**/*.drmlgunit
 *.exe
 vst/build/
 vst/external/
+release-mac/

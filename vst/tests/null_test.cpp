@@ -27,7 +27,7 @@ static void fill(std::vector<float>& buf,size_t frames,float fs){
 static std::vector<std::vector<int>> scenes(){
   std::vector<std::vector<int>> v;
   // VST-only params (COMP 0, P-MODE DRUMLOGUE) set so the port must match the original exactly.
-  for(int p=0;p<creamvst::kPresets;++p){const int* q=creamvst::presetValues(p);v.emplace_back(q,q+creamvst::kCount);v.back()[creamvst::kComp]=0;v.back()[creamvst::kPMode]=2;v.back()[creamvst::kRing]=0;}
+  for(int p=0;p<creamvst::kPresets;++p){const int* q=creamvst::presetValues(p);v.emplace_back(q,q+creamvst::kCount);v.back()[creamvst::kComp]=0;v.back()[creamvst::kPMode]=2;}
   auto s=v[0];s[12]=7;s[13]=80;s[9]=60;s[11]=70;s[10]=2;v.push_back(s);
   s[12]=-24;s[14]=0;s[1]=-24;s[5]=6;s[6]=100;s[7]=6;v.push_back(s);
 #ifdef CREAM_GRIT_MASTER
@@ -38,7 +38,7 @@ static std::vector<std::vector<int>> scenes(){
 // Scenes exercising the VST-only features (only checked for sanity, not against the original).
 static std::vector<std::vector<int>> extraScenes(){
   auto v=scenes();
-  for(auto& s:v){s[creamvst::kComp]=100;s[creamvst::kPMode]=1;s[creamvst::kRing]=30;s[12]=s[12]?s[12]:-12;}
+  for(auto& s:v){s[creamvst::kComp]=100;s[creamvst::kPMode]=1;s[12]=s[12]?s[12]:-12;}
   return v;
 }
 
