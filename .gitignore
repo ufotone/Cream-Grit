@@ -3,3 +3,5 @@ src/**/.dep/
 src/**/*.drmlgunit
 *.obj
 *.exe
+vst/build/
+vst/external/
