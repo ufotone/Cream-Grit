@@ -361,36 +361,37 @@ constexpr int kPresets = 4;
 constexpr int kOrigCount = 15;
 constexpr int kPresets = 2;
 #endif
-constexpr int kCount = kOrigCount + 2;
-constexpr int kComp = kOrigCount, kPMode = kOrigCount + 1;
+//   RING (0-100 %, ring-modulator blend) and RM-FREQ (1-3000 Hz carrier).
+constexpr int kCount = kOrigCount + 4;
+constexpr int kComp = kOrigCount, kPMode = kOrigCount + 1, kRing = kOrigCount + 2, kRingHz = kOrigCount + 3;
 
 static const int kMin[kCount] = {0,-24,0,0,150,6,0,-24,0,0,0,0,-36,0,0
 #ifdef CREAM_GRIT_MASTER
 ,0,0,1,0,0,3,0,1,0
 #endif
-,0,0
+,0,0,0,1
 };
 static const int kMax[kCount] = {100,0,100,100,1200,16,100,6,100,100,8,85,24,100,1
 #ifdef CREAM_GRIT_MASTER
 ,100,100,30,100,100,80,100,80,1
 #endif
-,100,2
+,100,2,100,3000
 };
 static const int kDefault[kCount] = {65,0,40,55,350,12,30,0,10,0,5,25,0,100,1
 #ifdef CREAM_GRIT_MASTER
 ,0,0,8,40,0,18,60,10,0
 #endif
-,45,1
+,45,1,0,220
 };
 static const int kDown[kCount] = {80,-13,40,50,350,12,35,0,10,0,5,25,0,100,1
 #ifdef CREAM_GRIT_MASTER
 ,0,0,8,40,0,18,60,10,0
 #endif
-,60,1
+,60,1,0,220
 };
 #ifdef CREAM_GRIT_MASTER
-static const int kWide[kCount]={45,-7,30,65,350,12,30,0,10,25,5,30,0,100,1,0,20,8,35,18,18,60,10,0,45,1};
-static const int kDrift[kCount]={45,-7,30,65,350,12,30,0,10,25,5,30,0,100,1,60,20,8,35,18,18,60,10,0,45,1};
+static const int kWide[kCount]={45,-7,30,65,350,12,30,0,10,25,5,30,0,100,1,0,20,8,35,18,18,60,10,0,45,1,0,220};
+static const int kDrift[kCount]={45,-7,30,65,350,12,30,0,10,25,5,30,0,100,1,60,20,8,35,18,18,60,10,0,45,1,0,220};
 #endif
 
 inline const int* presetValues(int i) {
@@ -462,6 +463,8 @@ class DSP {
     pitch_.setRatio(target_[12]);
     target_[kComp]=v[kComp]*.01f;
     target_[kPMode]=static_cast<float>(v[kPMode]);
+    target_[kRing]=v[kRing]*.01f;
+    target_[kRingHz]=static_cast<float>(v[kRingHz]);
 #ifdef CREAM_GRIT_MASTER
     target_[15]=v[15]*.01f;
     target_[16]=v[16]*.01f;target_[17]=v[17]*.1f;target_[18]=v[18]*.01f;
@@ -476,7 +479,7 @@ class DSP {
     phase_=0.f; envelope_=0.f;
     random_=0x2241200u;
     for(float &v:noiseFilter_) v=0.f;
-    compEnv_=0.f;
+    compEnv_=0.f;ringPhase_=0.f;
     for(int i=0;i<kCount;++i) smooth_[i]=target_[i];
     echo_.setTiming(bpm_,target_[10]);echo_.reset();
     pitch_.reset();pitchActive_=target_[12]!=1.f&&target_[13]>0.f?1.f:0.f;
@@ -555,6 +558,13 @@ class DSP {
         wet[c]+=air[c];
       }
       if(target_[kComp]>0.f||smooth_[kComp]>1.e-6f) compress(wet,smooth_[kComp],compAttack,compRelease);
+      if(target_[kRing]>0.f||smooth_[kRing]>1.e-6f) {
+        // Sine-carrier ring modulation blended in: wet = (1-m)*wet + m*wet*carrier.
+        ringPhase_+=smooth_[kRingHz]/fs_;if(ringPhase_>=1.f)ringPhase_-=1.f;
+        const float carrier=std::sin(6.28318530718f*ringPhase_);
+        const float m=smooth_[kRing];
+        for(int c=0;c<2;++c)wet[c]+=m*(wet[c]*carrier-wet[c]);
+      }
       const bool enabled=target_[9]>0.f || smooth_[9]>1.e-6f;
 #ifdef CREAM_GRIT_MASTER
       float mod[2],space[2],panned[2];
@@ -591,7 +601,7 @@ class DSP {
       w[c]=y+amount*(saturate(y*drive)/drive*1.15f-y);
     }
   }
-  float compEnv_=0.f;
+  float compEnv_=0.f,ringPhase_=0.f;
   float pole(float hz) const { return 1.f - std::exp(-6.28318530718f * hz / fs_); }
   static float lp(float x,float &state,float a) {
     state+=a*(x-state);

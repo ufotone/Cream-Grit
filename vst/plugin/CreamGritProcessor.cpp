@@ -20,6 +20,7 @@ const ParamInfo kInfo[] = {
   {"cdepth","C-DEPTH",Kind::percent},{"reverb","REVERB",Kind::percent},{"rdecay","R-DECAY",Kind::tenthSec},
   {"rdamp","R-DAMP",Kind::percent},{"prate","P-RATE",Kind::tenthHz},{"pwave","P-WAVE",Kind::wave},
   {"comp","COMP",Kind::percent},{"pmode","P-MODE",Kind::pmode},
+  {"ring","RING",Kind::percent},{"ringhz","RM-FREQ",Kind::hertz},
 };
 #ifndef CREAM_GRIT_MASTER
 #error "The VST build is MASTER edition only"
