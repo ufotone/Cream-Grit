@@ -122,7 +122,7 @@ VST版には3モードがあります。drumlogue向け逆移植試作版の2モ
 
 ## English
 
-Cream Grit M is a desktop audio effect based on the drumlogue MASTER edition. It combines lo-fi processing, pitch shifting, compression, tempo-sync echo, chorus, reverb, ring modulation and random panning. No drumlogue hardware is required.
+Cream Grit M is a desktop audio effect based on the drumlogue MASTER edition. It combines lo-fi processing, pitch shifting, compression, tempo-sync echo, chorus, reverb, ring modulation and random panning. This porting work was performed by an AI (Claude) and has not undergone thorough testing.
 
 **Windows has been tested by the maintainer. macOS is an untested alpha.** macOS CI builds succeed, but launching, audio processing and DAW loading have not been verified on a Mac. Universal / macOS 11+ are build targets, not verified compatibility claims.
 
