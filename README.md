@@ -8,6 +8,8 @@ KORG drumlogue用のローファイ、ピッチシフト、テンポ同期ディ
 ＶＳＴ版は AI（Claude)に移植してもらったものです。v0.6.0-beta.1を元にしています。
 以下専用ページを参照ください。
 
+**[Windows版ZIP](https://github.com/ufotone/Cream-Grit/releases/download/vst-v0.6.0-alpha.1/CreamGritM-Windows.zip)** · **[Mac版ZIP（Alpha・未テスト）](https://github.com/ufotone/Cream-Grit/releases/download/vst-v0.6.0-alpha.1/CreamGritM-macOS.zip)** · [VST版Release](https://github.com/ufotone/Cream-Grit/releases/tag/vst-v0.6.0-alpha.1)
+
 **[Cream Grit M — VST版の専用ページ](docs/VST.md)** · [入手・ビルド用README](vst/README.md)
 
 Windowsは動作確認済み。**Macは未テストのアルファ版**です。WindowsはVST3 / Standalone、MacはVST3 / AU / Standaloneをビルドしています。
@@ -87,8 +89,15 @@ PITCHが0、またはP-MIXが0ならピッチ処理を休止します。FULL・P
 
 ## English
 
-For the desktop port, see the **[Cream Grit M VST guide](docs/VST.md#english)** and [VST README](vst/README.md). 
-Windows has been tested; **macOS is an untested alpha**. The sections below describe the drumlogue edition.(v0.6.0-beta.1 based)
+### PC / Mac edition (VST3 effect)
+
+This VST port was made using AI (Claude), based on v0.6.0-beta.1.
+
+**[Download Windows ZIP](https://github.com/ufotone/Cream-Grit/releases/download/vst-v0.6.0-alpha.1/CreamGritM-Windows.zip)** · **[Download Mac ZIP — alpha, untested](https://github.com/ufotone/Cream-Grit/releases/download/vst-v0.6.0-alpha.1/CreamGritM-macOS.zip)** · [VST Release](https://github.com/ufotone/Cream-Grit/releases/tag/vst-v0.6.0-alpha.1)
+
+See the **[Cream Grit M VST guide](docs/VST.md#english)** and [download / build README](vst/README.md#english) for installation, usage and all controls. Windows has been tested and provides VST3 / Standalone; **macOS is an untested alpha** with VST3 / AU / Standalone builds. The sections below describe the drumlogue edition.
+
+Choose the DELAY UNIT or MASTER UNIT for your drumlogue. Simultaneous use of both has not been tested.
 
 A lo-fi, pitch-shift and tempo-sync delay effect for KORG drumlogue, available for the DELAY and MASTER slots.
 
